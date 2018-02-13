@@ -37,10 +37,14 @@
 #include <console.h>
 #include <libtcod_int.h>
 #include <libtcod_utility.h>
+#include <libtcod_sdl_render.h>
+#include <libtcod_sdl_tileset.h>
 
 static SDL_Surface* scale_screen=NULL;
 static bool clear_screen=false;
 static struct TCOD_Console *root_console_cache; /* cache for previous values */
+static struct TCOD_Tileset *tileset = NULL;
+
 
 /* This just forces a complete redraw, bypassing the usual rendering of changes. */
 void TCOD_sys_set_clear_screen(void) {
@@ -107,6 +111,13 @@ static struct TCOD_Console *ensure_cache(struct TCOD_Console* root) {
  * specifically to force screen refreshes.  To this end, and to avoid
  * threading complications it takes care of special cases internally.  */
 static void render(TCOD_SDL_driver_t *sdl, void *vbitmap, struct TCOD_Console *console) {
+  if (TCOD_ctx.renderer == TCOD_RENDERER_SDL2) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    TCOD_sdl_render_console(renderer, tileset, console);
+    SDL_RenderPresent(renderer);
+    return;
+  }
 	if ( TCOD_ctx.renderer == TCOD_RENDERER_SDL ) {
 		int console_width_p = console->w * TCOD_ctx.font_width;
 		int console_height_p = console->h * TCOD_ctx.font_height;
@@ -242,7 +253,20 @@ static SDL_Surface *create_surface(int width, int height, bool with_alpha) {
 }
 
 static void create_window(int w, int h, bool fullscreen) {
-	uint32_t winflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+	uint32_t winflags = 0;
+  if (TCOD_ctx.renderer == TCOD_RENDERER_SDL2) {
+    winflags |= SDL_WINDOW_RESIZABLE;
+    window = SDL_CreateWindow(TCOD_ctx.window_title,
+                              SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED,
+                              w * TCOD_ctx.font_width,
+                              h * TCOD_ctx.font_height,
+                              winflags);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    tileset = TCOD_tileset_from_tcod_context_();
+    return;
+  }
+  winflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
 #if defined(TCOD_ANDROID)
 	/* Android should always be fullscreen. */
 	TCOD_ctx.fullscreen = fullscreen = true;
@@ -497,6 +521,10 @@ static void shutdown_(void) {
 		TCOD_console_delete(root_console_cache);
 		root_console_cache = NULL;
 		}
+  if (tileset) {
+    TCOD_tileset_delete(tileset);
+    tileset = NULL;
+  }
 }
 
 TCOD_SDL_driver_t *SDL_implementation_factory(void) {

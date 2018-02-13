@@ -7,6 +7,8 @@
 #include "../png/lodepng.h"
 #include <SDL.h>
 
+#include <libtcod_int.h>
+
 /* Returns 1 if the tile in this rect can be converted into an alpha-only
    tile. */
 static int CanNormalizeTile(struct SDL_Surface *surface,
@@ -85,10 +87,19 @@ static struct SDL_Surface* LoadFontFile(const char *filename) {
 /* Allocate the map_charcode_to_tile buffer and return the status. */
 static int AllocateDefaultMapping(struct TCOD_Tileset *tileset) {
   int i;
+  size_t new_size;
+  if (tileset->character_count >= tileset->assigned_tiles ) {
+    return 0;
+  }
+  if (tileset->map_charcode_to_tile) {
+    free(tileset->map_charcode_to_tile);
+  }
   tileset->character_count = tileset->assigned_tiles;
-  tileset->map_charcode_to_tile =
-    malloc(sizeof(*tileset->map_charcode_to_tile) * tileset->character_count);
-  if (tileset->map_charcode_to_tile == NULL) { return -1; }
+  new_size = sizeof(*tileset->map_charcode_to_tile) * tileset->character_count;
+  tileset->map_charcode_to_tile = malloc(new_size);
+  if (tileset->map_charcode_to_tile == NULL) {
+    return -1;
+  }
   for(i=0; i<tileset->character_count; ++i) {
     tileset->map_charcode_to_tile[i] = i;
   }
@@ -156,4 +167,38 @@ int TCOD_tileset_delete(struct TCOD_Tileset *tileset) {
   if (tileset->surface) { SDL_FreeSurface(tileset->surface); }
   free(tileset);
   return 0;
+}
+/**
+ *  If tileset->map_charcode_to_tile is less than needed_size then it will
+ *  be resized to needed_size or larger.  The new array members are zeroed.
+ */
+static int RaiseMappingSizeIfNeeded(struct TCOD_Tileset *tileset,
+                                    int needed_size) {
+  int *temp_map;
+  int i;
+  if (needed_size <= tileset->character_count) { return 0; }
+  temp_map = realloc(tileset->map_charcode_to_tile,
+                     sizeof(*tileset->map_charcode_to_tile) * needed_size);
+  if (!temp_map) { return -1; }
+  tileset->map_charcode_to_tile = temp_map;
+  for (i = tileset->character_count; i < needed_size; ++i) {
+    tileset->map_charcode_to_tile[i] = 0;
+  }
+  tileset->character_count = needed_size;
+  return 0;
+}
+struct TCOD_Tileset* TCOD_tileset_from_tcod_context_() {
+  struct TCOD_Tileset *tileset = TCOD_tileset_from_file(TCOD_ctx.font_file,
+                                                        TCOD_ctx.font_width,
+                                                        TCOD_ctx.font_height);
+  int i;
+  if (!tileset) { return NULL; }
+  if (RaiseMappingSizeIfNeeded(tileset, TCOD_ctx.max_font_chars) < 0) {
+    TCOD_tileset_delete(tileset);
+    return NULL;
+  }
+  for (i = 0; i < TCOD_ctx.max_font_chars; ++i) {
+    tileset->map_charcode_to_tile[i] = TCOD_ctx.ascii_to_tcod[i];
+  }
+  return tileset;
 }

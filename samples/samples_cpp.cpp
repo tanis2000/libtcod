@@ -1420,7 +1420,7 @@ int main( int argc, char *argv[] ) {
 	bool creditsEnd=false;
 	int cur_renderer=0;
 	static const char *renderer_name[TCOD_NB_RENDERERS] = {
-		"F1 GLSL   ","F2 OPENGL ","F3 SDL    "
+		"F1 GLSL   ","F2 OPENGL ","F3 SDL    ","F4 SDL2   "
 	};
 
 	// initialize the root console (open the game window)
@@ -1574,6 +1574,8 @@ int main( int argc, char *argv[] ) {
 			TCODSystem::setRenderer(TCOD_RENDERER_OPENGL);
 		} else if (key.vk==TCODK_F3) {
 			TCODSystem::setRenderer(TCOD_RENDERER_SDL);
+		} else if (key.vk==TCODK_F4) {
+			TCODSystem::setRenderer(TCOD_RENDERER_SDL2);
 		}
 	} while (!TCODConsole::isWindowClosed());
 	return 0;

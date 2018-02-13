@@ -37,4 +37,6 @@ int TCOD_tileset_get_tile_for_charcode(const struct TCOD_Tileset *tileset,
 TCODLIB_API
 int TCOD_tileset_delete(struct TCOD_Tileset *tileset);
 
+struct TCOD_Tileset* TCOD_tileset_from_tcod_context_();
+
 #endif /* LIBTCOD_SDL_TILESET_H_ */
