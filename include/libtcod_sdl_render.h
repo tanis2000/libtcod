@@ -11,6 +11,7 @@ struct SDL_Renderer;
 TCODLIB_API
 int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                             struct TCOD_Tileset *tileset,
-                            const TCOD_console_t console);
+                            TCOD_console_t console,
+                            TCOD_console_t *cache_console);
 
 #endif /* LIBTCOD_SDL_RENDER_H_ */
