@@ -1,10 +1,10 @@
 
-#include <libtcod_sdl_tileset.h>
+#include <libtcod_sdl2_tileset.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "../png/lodepng.h"
+#include "png/lodepng.h"
 #include <SDL.h>
 
 #include <libtcod_int.h>

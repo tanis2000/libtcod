@@ -1,11 +1,11 @@
 
-#include <libtcod_sdl_window.h>
+#include <libtcod_sdl2_window.h>
 
 #include <stdlib.h>
 
 #include <SDL.h>
 
-#include <libtcod_sdl_render.h>
+#include <libtcod_sdl2_render.h>
 #include <libtcod_int.h>
 
 int TCOD_sdl_window_flush(struct TCOD_ManagedSDLWindow *window,

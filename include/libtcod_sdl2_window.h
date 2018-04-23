@@ -3,7 +3,7 @@
 #define LIBTCOD_SDL_WINDOW_H_
 
 #include "libtcod_portability.h"
-#include "libtcod_sdl_tileset.h"
+#include "libtcod_sdl2_tileset.h"
 #include "console.h"
 
 struct SDL_Window;

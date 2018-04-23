@@ -32,9 +32,9 @@
 #include "libtcod_utility.h"
 #include "libtcod_version.h"
 
-#include "libtcod_sdl_render.h"
-#include "libtcod_sdl_tileset.h"
-#include "libtcod_sdl_window.h"
+#include "libtcod_sdl2_render.h"
+#include "libtcod_sdl2_tileset.h"
+#include "libtcod_sdl2_window.h"
 
 #include "bresenham.h"
 #include "bsp.h"

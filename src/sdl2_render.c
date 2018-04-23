@@ -1,5 +1,5 @@
 
-#include <libtcod_sdl_render.h>
+#include <libtcod_sdl2_render.h>
 
 #include <SDL.h>
 
