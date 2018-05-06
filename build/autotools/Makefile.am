@@ -82,6 +82,9 @@ libtcod_la_SOURCES = \
 	../../src/noise_c.c \
 	../../src/parser_c.c \
 	../../src/path_c.c \
+	../../src/sdl2_backend.c \
+	../../src/sdl2_render.c \
+	../../src/sdl2_tileset.c \
 	../../src/sys_c.c \
 	../../src/sys_sdl2_c.c \
 	../../src/sys_sdl_c.c \
@@ -126,6 +129,9 @@ pkginclude_HEADERS = \
 	../../include/txtfield.h \
 	../../include/libtcod_int.h \
 	../../include/libtcod_portability.h \
+	../../include/libtcod_sdl2_backend.h \
+	../../include/libtcod_sdl2_render.h \
+	../../include/libtcod_sdl2_tileset.h \
 	../../include/libtcod_utility.h \
 	../../include/libtcod_version.h \
 	../../include/wrappers.h \
