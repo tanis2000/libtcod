@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 
+#include <console.h>
 #include <libtcod_sdl2_render.h>
 #include <libtcod_int.h>
 
@@ -53,6 +54,7 @@ struct TCOD_Backend_SDL_ {
   struct SDL_Window *window;
   struct SDL_Renderer *renderer;
   struct TCOD_Tileset *tileset;
+  struct SDL_Texture *buffer;
 };
 
 static int sdl_backend_render(struct TCOD_Backend_SDL_ *backend,
@@ -61,11 +63,42 @@ static int sdl_backend_render(struct TCOD_Backend_SDL_ *backend,
   return 0;
 }
 
+static SDL_Texture* sdl_get_buffer_texture(struct TCOD_Backend_SDL_ *backend,
+                                           TCOD_console_t console) {
+  int wanted_width =
+      backend->tileset->tile_width * TCOD_console_get_width(console);
+  int wanted_height =
+      backend->tileset->tile_height * TCOD_console_get_height(console);
+  if (backend->buffer) {
+    int current_width;
+    int current_height;
+    SDL_QueryTexture(backend->buffer, NULL, NULL,
+                     &current_width, &current_height);
+    if (current_width != wanted_width || current_height != wanted_height) {
+      SDL_DestroyTexture(backend->buffer);
+      backend->buffer = NULL;
+    }
+  }
+  if (!backend->buffer) {
+    backend->buffer = SDL_CreateTexture(
+        backend->renderer, 0, SDL_TEXTUREACCESS_TARGET,
+        backend->tileset->tile_width * TCOD_console_get_width(console),
+        backend->tileset->tile_height * TCOD_console_get_height(console));
+  }
+  return backend->buffer;
+  }
+
 static int sdl_backend_render_and_present(struct TCOD_Backend_SDL_ *backend,
                                           TCOD_console_t console) {
+  /* update back buffer from console */
+  sdl_get_buffer_texture(backend, console);
+  SDL_SetRenderTarget(backend->renderer, backend->buffer);
+  sdl_backend_render(backend, console);
+  /* draw buffer to screen */
+  SDL_SetRenderTarget(backend->renderer, NULL);
   SDL_SetRenderDrawColor(backend->renderer, 0, 0, 0, 255);
   SDL_RenderClear(backend->renderer);
-  sdl_backend_render(backend, console);
+  SDL_RenderCopy(backend->renderer, backend->buffer, NULL, NULL);
   SDL_RenderPresent(backend->renderer);
   return 0;
 }
@@ -89,7 +122,7 @@ struct TCOD_Backend_* TCOD_get_sdl_backend_(int w, int h, bool fullscreen) {
                                      h * TCOD_ctx.font_height,
                                      SDL_WINDOW_RESIZABLE);
   backend->renderer = SDL_CreateRenderer(backend->window, -1,
-                                         SDL_RENDERER_SOFTWARE);
+                                         SDL_RENDERER_TARGETTEXTURE);
   backend->tileset = TCOD_tileset_from_tcod_context_();
   /* set the libtcod_int.h global variables */
   window = backend->window;
