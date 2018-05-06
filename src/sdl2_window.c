@@ -10,7 +10,7 @@
 
 int TCOD_sdl_window_flush(struct TCOD_ManagedSDLWindow *window,
                           struct TCOD_Tileset *tileset,
-                          TCOD_console_data_t *console) {
+                          TCOD_console_t console) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(window->renderer);
   TCOD_sdl_render_console(window->renderer, tileset, console, NULL);
@@ -56,13 +56,13 @@ struct TCOD_Backend_SDL_ {
 };
 
 static int sdl_backend_render(struct TCOD_Backend_SDL_ *backend,
-                      TCOD_console_data_t *console) {
+                              TCOD_console_t console) {
   TCOD_sdl_render_console(backend->renderer, backend->tileset, console, NULL);
   return 0;
 }
 
 static int sdl_backend_render_and_present(struct TCOD_Backend_SDL_ *backend,
-                                          TCOD_console_data_t *console) {
+                                          TCOD_console_t console) {
   SDL_SetRenderDrawColor(backend->renderer, 0, 0, 0, 255);
   SDL_RenderClear(backend->renderer);
   sdl_backend_render(backend, console);

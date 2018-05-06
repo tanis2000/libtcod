@@ -77,9 +77,10 @@ static void RenderTile(struct SDL_Renderer *renderer,
 
 int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                             struct TCOD_Tileset *tileset,
-                            TCOD_console_data_t *console,
-                            TCOD_console_data_t **cache_console) {
+                            TCOD_console_t console,
+                            TCOD_console_t *cache_console) {
   int console_x, console_y; /* console coordinate */
+  TCOD_console_data_t *con = console;
   TCOD_console_data_t *cache = (cache_console ? *cache_console : NULL);
   struct SDL_Texture *texture = TCOD_tileset_get_sdl_texture_(tileset,
                                                               renderer);
@@ -89,9 +90,9 @@ int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
   /* texture will blend using the alpha channel */
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, 255);
-  for (console_y = 0; console_y < console->h; ++console_y) {
-    for (console_x = 0; console_x < console->w; ++console_x) {
-      RenderTile(renderer, tileset, console, cache, texture,
+  for (console_y = 0; console_y < con->h; ++console_y) {
+    for (console_x = 0; console_x < con->w; ++console_x) {
+      RenderTile(renderer, tileset, con, cache, texture,
                  console_x, console_y);
     }
   }
