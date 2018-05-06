@@ -5,12 +5,6 @@
 
 #include <libtcod_int.h>
 
-static SDL_Texture* NewTexture(struct SDL_Renderer *renderer,
-                               struct TCOD_Tileset *tileset) {
-  return SDL_CreateTextureFromSurface(renderer, tileset->surface);
-}
-
-
 /* Return the renderer drawing region */
 static struct SDL_Rect GetDestinationRect(struct TCOD_Tileset *tileset,
                                           int console_x,
@@ -86,12 +80,10 @@ int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                             TCOD_console_data_t *console,
                             TCOD_console_data_t **cache_console) {
   int console_x, console_y; /* console coordinate */
-  TCOD_console_data_t *cache=NULL;
-  struct SDL_Texture *texture = NewTexture(renderer, tileset);
+  TCOD_console_data_t *cache = (cache_console ? *cache_console : NULL);
+  struct SDL_Texture *texture = TCOD_tileset_get_sdl_texture_(tileset,
+                                                              renderer);
   if (!texture) { return -1; }
-  if (cache_console) {
-    cache = *cache_console;
-  }
   /* renderer will fill in all rects without blending */
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
   /* texture will blend using the alpha channel */
@@ -103,6 +95,5 @@ int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                  console_x, console_y);
     }
   }
-  SDL_DestroyTexture(texture);
   return 0;
 }

@@ -202,3 +202,13 @@ struct TCOD_Tileset* TCOD_tileset_from_tcod_context_() {
   }
   return tileset;
 }
+
+struct SDL_Texture* TCOD_tileset_get_sdl_texture_(
+    struct TCOD_Tileset *tileset,
+    struct SDL_Renderer *renderer) {
+  if (!tileset->sdl_texture_cache) {
+    tileset->sdl_texture_cache =
+        SDL_CreateTextureFromSurface(renderer, tileset->surface);
+  }
+  return tileset->sdl_texture_cache;
+}
