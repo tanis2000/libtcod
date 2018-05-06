@@ -37,7 +37,7 @@
 #include <console.h>
 #include <libtcod_int.h>
 #include <libtcod_utility.h>
-#include <libtcod_sdl2_window.h>
+#include <libtcod_sdl2_backend.h>
 
 static SDL_Surface* scale_screen=NULL;
 static bool clear_screen=false;

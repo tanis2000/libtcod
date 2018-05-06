@@ -1,5 +1,5 @@
 
-#include <libtcod_sdl2_window.h>
+#include <libtcod_sdl2_backend.h>
 
 #include <stdlib.h>
 
