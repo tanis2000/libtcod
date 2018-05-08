@@ -75,13 +75,40 @@ static void RenderTile(struct SDL_Renderer *renderer,
   return;
 }
 
+static TCOD_console_data_t* TCOD_sdl2_verify_cache_(
+    TCOD_console_t console,
+    TCOD_console_t *cache_console) {
+  if (!cache_console) { return NULL; }
+  if (!*cache_console) { return NULL; }
+  if ((TCOD_console_get_width(console) !=
+       TCOD_console_get_width(*cache_console)) ||
+      (TCOD_console_get_height(console) !=
+       TCOD_console_get_height(*cache_console))) {
+    TCOD_console_delete(*cache_console);
+    *cache_console = NULL;
+  }
+  return *cache_console;
+}
+
+static int TCOD_sdl2_update_cache_(TCOD_console_t console,
+                                   TCOD_console_t *cache_console) {
+  if (!cache_console) { return 1; }
+  if (!*cache_console) {
+    *cache_console = TCOD_console_new(TCOD_console_get_width(console),
+                                      TCOD_console_get_height(console));
+    if (!*cache_console) { return -1; }
+  }
+  TCOD_console_blit(console, 0, 0, 0, 0, *cache_console, 0, 0, 1.0f, 1.0f);
+  return 0;
+}
+
 int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                             struct TCOD_Tileset *tileset,
                             TCOD_console_t console,
                             TCOD_console_t *cache_console) {
   int console_x, console_y; /* console coordinate */
   TCOD_console_data_t *con = console;
-  TCOD_console_data_t *cache = (cache_console ? *cache_console : NULL);
+  TCOD_console_data_t *cache = TCOD_sdl2_verify_cache_(console, cache_console);
   struct SDL_Texture *texture = TCOD_tileset_get_sdl_texture_(tileset,
                                                               renderer);
   if (!texture) { return -1; }
@@ -96,5 +123,6 @@ int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                  console_x, console_y);
     }
   }
+  TCOD_sdl2_update_cache_(console, cache_console);
   return 0;
 }

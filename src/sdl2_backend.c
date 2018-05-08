@@ -55,11 +55,29 @@ struct TCOD_Backend_SDL_ {
   struct SDL_Renderer *renderer;
   struct TCOD_Tileset *tileset;
   struct SDL_Texture *buffer;
+  struct TCOD_Console_t *cache_console;
 };
+/**
+ *  This callback makes sure the next frame performs a full redraw after SDL
+ *  resets all target textures.
+ */
+static int TCOD_sdl2_backend_on_targets_reset_(
+    struct TCOD_Backend_SDL_ *backend,
+    SDL_Event* event) {
+  if (event->type != SDL_RENDER_TARGETS_RESET) { return 0; }
+  /* Just delete cache_console, it will be reinitialized at the end of the next
+     frame. */
+  if (backend->cache_console) {
+    TCOD_console_delete(backend->cache_console);
+    backend->cache_console = NULL;
+  }
+  return 0;
+}
 
 static int sdl_backend_render(struct TCOD_Backend_SDL_ *backend,
                               TCOD_console_t console) {
-  TCOD_sdl_render_console(backend->renderer, backend->tileset, console, NULL);
+  TCOD_sdl_render_console(backend->renderer, backend->tileset, console,
+                          &backend->cache_console);
   return 0;
 }
 
@@ -105,6 +123,7 @@ static int sdl_backend_render_and_present(struct TCOD_Backend_SDL_ *backend,
 
 static int sdl_backend_destroy(struct TCOD_Backend_SDL_ *backend) {
   if (backend->tileset) { TCOD_tileset_delete(backend->tileset); }
+  SDL_DelEventWatch(TCOD_sdl2_backend_on_targets_reset_, backend);
   return 0;
 }
 
@@ -124,6 +143,7 @@ struct TCOD_Backend_* TCOD_get_sdl_backend_(int w, int h, bool fullscreen) {
   backend->renderer = SDL_CreateRenderer(backend->window, -1,
                                          SDL_RENDERER_TARGETTEXTURE);
   backend->tileset = TCOD_tileset_from_tcod_context_();
+  SDL_AddEventWatch(TCOD_sdl2_backend_on_targets_reset_, backend);
   /* set the libtcod_int.h global variables */
   window = backend->window;
   renderer = backend->renderer;
