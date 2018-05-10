@@ -95,10 +95,12 @@ static int TCOD_sdl2_backend_on_event_(
          next frame. */
       TCOD_sdl2_backend_free_console_(backend);
       break;
+#if SDL_VERSION_ATLEAST(2, 0, 4)
     case SDL_RENDER_DEVICE_RESET:
       /* All textures need to be recreated. */
       TCOD_sdl2_backend_free_back_buffer_(backend);
       break;
+#endif
     case SDL_APP_LOWMEMORY:
       TCOD_sdl2_backend_free_console_(backend);
       TCOD_sdl2_backend_free_back_buffer_(backend);
