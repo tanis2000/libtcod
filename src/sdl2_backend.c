@@ -58,6 +58,30 @@ struct TCOD_Backend_SDL_ {
   struct TCOD_Console_t *cache_console;
 };
 /**
+ *  Delete the console cache.
+ *  This will force a refresh of the back buffer as a side-effect.
+ */
+static int TCOD_sdl2_backend_free_console_(
+    struct TCOD_Backend_SDL_ *backend) {
+  if (backend->cache_console) {
+    TCOD_console_delete(backend->cache_console);
+    backend->cache_console = NULL;
+  }
+  return 0;
+}
+/**
+ *  Delete the back buffer texture.
+ */
+static int TCOD_sdl2_backend_free_back_buffer_(
+    struct TCOD_Backend_SDL_ *backend) {
+  if (backend->buffer) {
+    SDL_DestroyTexture(backend->buffer);
+    backend->buffer = NULL;
+  }
+  /* The console cache depends on this buffer and also needs to be freed. */
+  return TCOD_sdl2_backend_free_console_(backend);
+}
+/**
  *  This back-end receives SDL events to this callback during its lifetime.
  */
 static int TCOD_sdl2_backend_on_event_(
@@ -69,11 +93,15 @@ static int TCOD_sdl2_backend_on_event_(
     case SDL_RENDER_TARGETS_RESET:
       /* Just delete cache_console, it will be reinitialized at the end of the
          next frame. */
-      if (backend->cache_console) {
-        TCOD_console_delete(backend->cache_console);
-        backend->cache_console = NULL;
-      }
+      TCOD_sdl2_backend_free_console_(backend);
       break;
+    case SDL_RENDER_DEVICE_RESET:
+      /* All textures need to be recreated. */
+      TCOD_sdl2_backend_free_back_buffer_(backend);
+      break;
+    case SDL_APP_LOWMEMORY:
+      TCOD_sdl2_backend_free_console_(backend);
+      TCOD_sdl2_backend_free_back_buffer_(backend);
     default:
       break;
   }
@@ -128,6 +156,8 @@ static int sdl_backend_render_and_present(struct TCOD_Backend_SDL_ *backend,
 }
 
 static int sdl_backend_destroy(struct TCOD_Backend_SDL_ *backend) {
+  TCOD_sdl2_backend_free_console_(backend);
+  TCOD_sdl2_backend_free_back_buffer_(backend);
   if (backend->tileset) { TCOD_tileset_delete(backend->tileset); }
   SDL_DelEventWatch(TCOD_sdl2_backend_on_event_, backend);
   return 0;
