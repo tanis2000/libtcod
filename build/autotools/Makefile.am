@@ -127,6 +127,7 @@ pkginclude_HEADERS = \
 	../../include/tree.h \
 	../../include/libtcod.h \
 	../../include/txtfield.h \
+	../../include/libtcod_backend.h \
 	../../include/libtcod_int.h \
 	../../include/libtcod_portability.h \
 	../../include/libtcod_sdl2_backend.h \

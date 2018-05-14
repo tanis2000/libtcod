@@ -3,6 +3,7 @@
 #define LIBTCOD_SDL_WINDOW_H_
 
 #include "libtcod_portability.h"
+#include "libtcod_backend.h"
 #include "libtcod_sdl2_tileset.h"
 #include "console.h"
 
@@ -25,12 +26,6 @@ TCODLIB_API
 int TCOD_sdl_window_flush(struct TCOD_ManagedSDLWindow *window,
                           struct TCOD_Tileset *tileset,
                           const TCOD_console_t console);
-
-struct TCOD_Backend_ {
-  int (*render)(void*, TCOD_console_t);
-  int (*render_and_present)(void*, TCOD_console_t);
-  int (*destroy)(void*);
-};
 
 struct TCOD_Backend_* TCOD_get_sdl_backend_(int w, int h, bool fullscreen);
 
