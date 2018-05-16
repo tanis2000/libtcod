@@ -47,6 +47,7 @@
  */
 #include "vendor/stb.c"
 
+#include "backend.c"
 #include "bresenham_c.c"
 #include "bsp_c.c"
 #include "color_c.c"

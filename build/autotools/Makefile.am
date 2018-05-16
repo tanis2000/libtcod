@@ -61,6 +61,7 @@ otherinclude_HEADERS = \
 
 
 libtcod_la_SOURCES = \
+	../../src/backend.c \
 	../../src/bresenham_c.c \
 	../../src/bsp_c.c \
 	../../src/color_c.c \
