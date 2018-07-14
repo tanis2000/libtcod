@@ -14,7 +14,7 @@ struct TCOD_Backend_SDL_ {
   struct SDL_Renderer *renderer;
   struct TCOD_Tileset *tileset;
   struct SDL_Texture *buffer;
-  struct TCOD_Console_t *cache_console;
+  struct TCOD_Console *cache_console;
 };
 /**
  *  Delete the console cache.
@@ -70,14 +70,14 @@ static int TCOD_sdl2_backend_on_event_(
 }
 
 static int sdl_backend_render(struct TCOD_Backend_SDL_ *backend,
-                              TCOD_console_t console) {
+                              struct TCOD_Console *console) {
   TCOD_sdl_render_console(backend->renderer, backend->tileset, console,
                           &backend->cache_console);
   return 0;
 }
 
 static SDL_Texture* sdl_get_buffer_texture(struct TCOD_Backend_SDL_ *backend,
-                                           TCOD_console_t console) {
+                                           struct TCOD_Console *console) {
   int wanted_width =
       backend->tileset->tile_width * TCOD_console_get_width(console);
   int wanted_height =
@@ -102,7 +102,7 @@ static SDL_Texture* sdl_get_buffer_texture(struct TCOD_Backend_SDL_ *backend,
   }
 
 static int sdl_backend_present(struct TCOD_Backend_SDL_ *backend,
-                                          TCOD_console_t console) {
+                               struct TCOD_Console *console) {
   /* update back buffer from console */
   sdl_get_buffer_texture(backend, console);
   SDL_SetRenderTarget(backend->renderer, backend->buffer);

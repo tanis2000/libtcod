@@ -29,8 +29,8 @@ static struct SDL_Rect GetTileRect(struct TCOD_Tileset *tileset,
   return rect;
 }
 
-static int IsTileDirty(TCOD_console_data_t *console,
-                       TCOD_console_data_t *cache,
+static int IsTileDirty(struct TCOD_Console *console,
+                       struct TCOD_Console *cache,
                        int console_i) {
   int ch = console->ch_array[console_i];
   TCOD_color_t bg = console->bg_array[console_i];
@@ -50,8 +50,8 @@ static int IsTileDirty(TCOD_console_data_t *console,
 
 static void RenderTile(struct SDL_Renderer *renderer,
                        struct TCOD_Tileset *tileset,
-                       TCOD_console_data_t *console,
-                       TCOD_console_data_t *cache,
+                       struct TCOD_Console *console,
+                       struct TCOD_Console *cache,
                        struct SDL_Texture *tile_texture,
                        int console_x, int console_y) {
   int console_i = console_y*console->w+console_x;
@@ -75,9 +75,9 @@ static void RenderTile(struct SDL_Renderer *renderer,
   return;
 }
 
-static TCOD_console_data_t* TCOD_sdl2_verify_cache_(
-    TCOD_console_t console,
-    TCOD_console_t *cache_console) {
+static struct TCOD_Console* TCOD_sdl2_verify_cache_(
+    struct TCOD_Console *console,
+    struct TCOD_Console **cache_console) {
   if (!cache_console) { return NULL; }
   if (!*cache_console) { return NULL; }
   if ((TCOD_console_get_width(console) !=
@@ -90,8 +90,8 @@ static TCOD_console_data_t* TCOD_sdl2_verify_cache_(
   return *cache_console;
 }
 
-static int TCOD_sdl2_update_cache_(TCOD_console_t console,
-                                   TCOD_console_t *cache_console) {
+static int TCOD_sdl2_update_cache_(struct TCOD_Console *console,
+                                   struct TCOD_Console **cache_console) {
   if (!cache_console) { return 1; }
   if (!*cache_console) {
     *cache_console = TCOD_console_new(TCOD_console_get_width(console),
@@ -104,11 +104,11 @@ static int TCOD_sdl2_update_cache_(TCOD_console_t console,
 
 int TCOD_sdl_render_console(struct SDL_Renderer *renderer,
                             struct TCOD_Tileset *tileset,
-                            TCOD_console_t console,
-                            TCOD_console_t *cache_console) {
+                            struct TCOD_Console *console,
+                            struct TCOD_Console **cache_console) {
   int console_x, console_y; /* console coordinate */
-  TCOD_console_data_t *con = console;
-  TCOD_console_data_t *cache = TCOD_sdl2_verify_cache_(console, cache_console);
+  struct TCOD_Console *con = console;
+  struct TCOD_Console *cache = TCOD_sdl2_verify_cache_(console, cache_console);
   struct SDL_Texture *texture = TCOD_tileset_get_sdl_texture_(tileset,
                                                               renderer);
   if (!texture) { return -1; }

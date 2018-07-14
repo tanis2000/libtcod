@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "png/lodepng.h"
+#include "vendor/lodepng.h"
 #include <SDL.h>
 
 #include <libtcod_int.h>
