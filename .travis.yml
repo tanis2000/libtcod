@@ -48,6 +48,13 @@ script:
 - 'if [[ "$BUILD_TOOL" == "autotools" ]]; then (cd build/autotools && make check); fi'
 - 'if [[ "$BUILD_TOOL" == "scons" ]]; then LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR ./unittest $UNITTEST_ARGS; fi'
 - (cd python && pytest -v)
+
+after_success:
+- 'if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export GCOV=gcov; else export GCOV=gcov-8; fi'
+- $GCOV build/scons/libtcod*/src/libtcod/*.os \
+        build/scons/libtcod*/src/libtcod/*/*.os 1> /dev/null 2>&1
+- 'bash <(curl -s https://codecov.io/bash) -x $GCOV 2>&1 | grep -v "has arcs"'
+
 deploy:
   provider: releases
   api_key:

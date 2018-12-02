@@ -3,9 +3,14 @@ set -e
 
 if [[ "$BUILD_TOOL" == "scons" ]]; then
     BUILDMODE="MODE=DEBUG"
-    if [[ -n "$TRAVIS_TAG" ]]; then BUILDMODE="MODE=RELEASE"; fi
+    COVFLAGS=""
+    if [[ -n "$TRAVIS_TAG" ]]; then
+        BUILDMODE="MODE=RELEASE";
+    else
+        COVFLAGS="CCFLAGS='-coverage' LINKFLAGS='-coverage'"
+    fi
     cd build/scons
-    scons develop_all dist -j 3 CPPDEFINES=NDEBUG ARCH=x86_64 $BUILDMODE
+    scons develop_all dist -j 3 -s CPPDEFINES=NDEBUG ARCH=x86_64 $BUILDMODE $COVFLAGS
     cd ../..
 elif [[ "$BUILD_TOOL" == "autotools" ]]; then
     cd build/autotools
