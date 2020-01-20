@@ -41,9 +41,9 @@
 #include "../portability.h"
 #include "../color/color.h"
 #include "tile.h"
-struct TCOD_TilesetAtlas {
+struct TCOD_TilesetObserver {
   int type;
-  struct TCOD_TilesetAtlas* next;
+  struct TCOD_TilesetObserver* next;
   void* userdata;
   void (*destructor)(void* userdata);
   int (*notify_changed)(void* userdata, int tile_id);
@@ -57,7 +57,7 @@ struct TCOD_Tileset {
   struct TCOD_ColorRGBA* pixels;
   int character_map_length;
   int* character_map;
-  struct TCOD_TilesetAtlas* atlas_list;
+  struct TCOD_TilesetObserver* observer;
   int virtual_columns;
   volatile int ref_count;
 };

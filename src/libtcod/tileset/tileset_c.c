@@ -48,8 +48,8 @@ void TCOD_tileset_delete(TCOD_Tileset* tileset)
 {
   if (!tileset) { return; }
   if (--tileset->ref_count != 0) { return; }
-  while (struct TCOD_TilesetAtlas* it = tileset->atlas_list) {
-    tileset->atlas_list = it->next;
+  while (struct TCOD_TilesetObserver* it = tileset->observer) {
+    tileset->observer = it->next;
     if (it->destructor) { it->destructor(it->userdata); }
     free(it);
   }
@@ -155,7 +155,7 @@ int TCOD_tileset_set_tile_(
   struct TCOD_ColorRGBA* tile =
       tileset->pixels + tileset->tile_length * tile_id;
   memcpy(tile, buffer, sizeof(tile[0]) * tileset->tile_length);
-  for (struct TCOD_TilesetAtlas* it = tileset->atlas_list; it; it = it->next) {
+  for (struct TCOD_TilesetObserver* it = tileset->observer; it; it = it->next) {
     if (!it->notify_changed) { continue; }
     int err = it->notify_changed(it->userdata, tile_id);
     if (err) { return err; }
